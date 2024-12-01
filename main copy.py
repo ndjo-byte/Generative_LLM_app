@@ -6,14 +6,12 @@ from dotenv import load_dotenv
 import os
 from database import insert_goal, close_connection, db
 from datetime import datetime, date 
-
 from fastapi.templating import Jinja2Templates
-from fastapi.responses import HTMLResponse, RedirectResponse
 
 
 
 #app design template
-templates = Jinja2Templates(directory="templates")
+#templates = Jinja2Templates(directory="templates")
 
 
 
@@ -117,45 +115,74 @@ project_prompt = PromptTemplate(
 
 #fast api endpoint / functions: home 
 
-""" @app.get("/")
+@app.get("/")
 async def root():
-    return {"message": "Welcome to the AI Goal Setting App"} """
-
-@app.get("/", response_class=HTMLResponse)
-async def landing_page(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return {"message": "Welcome to the AI Goal Setting App"}
 
 
 
-@app.post('/generate-plan/', response_class=HTMLResponse)
-async def generate_plan(request: Request, name: str = Form(...), description: str = Form(...), deadline: str = Form(...), today: str = Depends(get_today)):
-    try:
-        prompt = PredInput(name=name, description=description, deadline=deadline)
-        user_input_variables = project_prompt.format(name=prompt.name, description=prompt.description, deadline=prompt.deadline, today=today)
-        goal_plan = llm.invoke(user_input_variables)
-        primary_id = insert_goal(prompt.name, prompt.description, prompt.deadline, goal_plan)
 
-        # Return the generated plan and id on the same page
-        return templates.TemplateResponse("index.html", {"request": request, "primary_id": primary_id, "goal_plan": goal_plan, "name": prompt.name})
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error in generating plan: {str(e)}")
+#fast api endpoint / functions: chat 
+
+@app.post('/generate-plan/')
+async def generate_plan(prompt:PredInput, today: str = Depends(get_today)):
+	
+	try: 
+
+		user_input_variables = project_prompt.format( 
+			#langchain method for user to input variables
+			name= prompt.name,
+			description = prompt.description,
+			deadline = prompt.deadline,
+            today = today
+			)
+		
+		#use model 
+		goal_plan = llm.invoke(user_input_variables)
+
+            
+		#insert into db
+		primary_id = insert_goal(prompt.name, prompt.description, prompt.deadline, goal_plan)
+
+		return {"primary_id": primary_id, "project_name": prompt.name, "goal_plan": goal_plan} #dictionary for json format
+
+	except Exception as e:
+
+		raise HTTPException(status_code=500, detail=(f'Error in generating model: {str(e)}')) 
 
 
 
-@app.get("/get-goal/{goal_id}", response_class=HTMLResponse)
-async def get_goal(request: Request, goal_id: int):
+#retrieve a specific plan using id 
+
+@app.get("/get-goal/{goal_id}")
+async def get_goal(goal_id: int):
     try:
         query = f"SELECT * FROM goals WHERE id = %s"
-        with db.cursor() as cursor:
+        with db.cursor() as cursor:  # Here the cursor is used to interact with the DB
             cursor.execute(query, (goal_id,))
             goal = cursor.fetchone()
 
         if not goal:
             raise HTTPException(status_code=404, detail="Goal not found")
 
-        # Render retrieved goal data on the same page
-        return templates.TemplateResponse("index.html", {"request": request, "goal": goal})
+        return goal  # Return the goal data
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving goal: {str(e)}")
 
+
+
+#retrieve all goals 
+
+@app.get("/get-all-goals")
+async def get_all_goals():
+    try:
+        query = "SELECT * FROM goals"
+        with db.cursor() as cursor:
+            cursor.execute(query)
+            goals = cursor.fetchall()
+
+        return {"goals": goals}
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error retrieving goals: {str(e)}")

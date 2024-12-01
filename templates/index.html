@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMART Goals AI Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f9;
+            color: #333;
+        }
+        header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 1rem 2rem;
+            text-align: center;
+        }
+        section {
+            padding: 2rem;
+            max-width: 800px;
+            margin: auto;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+        form {
+            margin: 1rem 0;
+        }
+        label, input, textarea {
+            display: block;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+        input[type="text"], textarea {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        footer {
+            text-align: center;
+            padding: 1rem;
+            background-color: #333;
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .generated-plan, .retrieved-plan {
+            margin-top: 2rem;
+            padding: 1rem;
+            background-color: #e7f7e7;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .goal-info {
+            margin-bottom: 1rem;
+        }
+        .goal-info label {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>SMART Goals AI Generator</h1>
+        <p>Your AI-powered assistant to create actionable SMART goals.</p>
+    </header>
+    <section>
+        <h2>Create a New Goal</h2>
+        <form method="post" action="/generate-plan/">
+            <label for="name">Goal Name:</label>
+            <input type="text" id="name" name="name" required>
+
+            <label for="description">Goal Description:</label>
+            <textarea id="description" name="description" rows="5" required></textarea>
+
+            <label for="deadline">Deadline (yyyy-mm-dd):</label>
+            <input type="text" id="deadline" name="deadline" required>
+
+            <button type="submit">Generate Plan</button>
+        </form>
+
+        <!-- Display generated plan -->
+        {% if goal_plan %}
+        <div class="generated-plan">
+            <h3>Your Generated Goal Plan</h3>
+            <div class="goal-info">
+                <label>Goal Name:</label>
+                <p>{{ name }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Goal Description:</label>
+                <p>{{ goal_plan }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Deadline:</label>
+                <p>{{ deadline }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Primary ID:</label>
+                <p>{{ primary_id }}</p>
+            </div>
+        </div>
+        {% endif %}
+
+        <h2>Retrieve a Goal</h2>
+        <form method="get" action="/get-goal/">
+            <label for="goal_id">Goal ID:</label>
+            <input type="text" id="goal_id" name="goal_id" required>
+            <button type="submit">Retrieve Goal</button>
+        </form>
+
+        <!-- Display retrieved goal -->
+        {% if goal %}
+        <div class="retrieved-plan">
+            <h3>Retrieved Goal</h3>
+            <div class="goal-info">
+                <label>Goal ID:</label>
+                <p>{{ goal[0] }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Goal Name:</label>
+                <p>{{ goal[1] }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Goal Description:</label>
+                <p>{{ goal[2] }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Deadline:</label>
+                <p>{{ goal[3] }}</p>
+            </div>
+            <div class="goal-info">
+                <label>Generated Plan:</label>
+                <p>{{ goal[4] }}</p>
+            </div>
+        </div>
+        {% endif %}
+    </section>
+    <footer>
+        <p>Created by Nathan Jones | <a href="https://github.com/ndjo-byte" target="_blank" style="color:white;">GitHub</a></p>
+    </footer>
+</body>
+</html>
