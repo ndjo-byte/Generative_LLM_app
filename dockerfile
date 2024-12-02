@@ -1,5 +1,5 @@
 # Utilizar una imagen de Python
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 # Establecer el directorio del contendor
 WORKDIR /app
@@ -14,5 +14,4 @@ RUN pip install -r requirements.txt
 EXPOSE 8000
 
 # Comando para ejecutar la aplicación
-# CMD ["python", "app_model.py"]
-CMD ["uvicorn", "app_model:app", "--host", "0.0.0.0"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0"]
