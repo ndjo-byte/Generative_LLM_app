@@ -145,17 +145,21 @@ async def generate_plan(request: Request, name: str = Form(...), description: st
 @app.get("/get-goal/{goal_id}", response_class=HTMLResponse)
 async def get_goal(request: Request, goal_id: int):
     try:
-        query = f"SELECT * FROM goals WHERE id = %s"
+        query = "SELECT * FROM goals WHERE id = %s"
         with db.cursor() as cursor:
             cursor.execute(query, (goal_id,))
             goal = cursor.fetchone()
 
         if not goal:
-            raise HTTPException(status_code=404, detail="Goal not found")
+            return templates.TemplateResponse("index.html", {"request": request, "error": f"Goal with ID {goal_id} not found."})
 
-        # Render retrieved goal data on the same page
+        # Convert dates to strings for rendering
+        goal['deadline'] = str(goal['deadline'])
+        goal['created_at'] = str(goal['created_at'])
+
         return templates.TemplateResponse("index.html", {"request": request, "goal": goal})
 
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error retrieving goal: {str(e)}")
+
 

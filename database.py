@@ -81,7 +81,6 @@ def insert_goal(name, description, deadline, goal_plan, status='in-progress'):
         db.rollback()  # Rollback in case of an error
 
 
-
 # Close connection function (to use in MAIN.PY)
 def close_connection():
     try:
