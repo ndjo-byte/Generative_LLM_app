@@ -55,6 +55,8 @@ Create a .env file in the root directory and add the following:
 
 HF_API_KEY=your_huggingface_api_key
 
+DATABASE_URL=your_database_url
+
 Install the required dependencies:
 
 _pip install -r requirements.txt_
